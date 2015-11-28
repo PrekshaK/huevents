@@ -50,6 +50,7 @@ angular.module('app.controllers', [])
      			template: 'Your Event should show up in the events feed.',
    			});
 		    alertPopup.then(function(res) {
+		      $scope.eventName="";
 		     $state.go('tabsController.allEvents');
 		     console.log('Thank you for adding an event.');
 		   });

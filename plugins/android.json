@@ -29,7 +29,20 @@
             "APP_ID": "764722696967039",
             "APP_NAME": "eventapp",
             "PACKAGE_NAME": "com.ionicframework.qweasd219235"
+        },
+        "com.raananw.imageResizerTT": {
+            "PACKAGE_NAME": "com.ionicframework.qweasd219235"
+        },
+        "cordova-plugin-actionsheet": {
+            "PACKAGE_NAME": "com.ionicframework.qweasd219235"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "com.ionicframework.qweasd219235"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "com.ionicframework.qweasd219235"
+        }
+    }
 }
