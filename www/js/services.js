@@ -1,10 +1,85 @@
 angular.module('app.services', [])
 
-.factory('BlankFactory', [function(){
 
-}])
+    .factory('Camera', ['$q', function ($q) {
 
-.service('ParseService', function($http){
+        return {
+
+            getPictureFromGallery: function (options) {
+                var q = $q.defer();
+
+                navigator.camera.getPicture(function (result) {
+                    // Do any magic you need
+                    q.resolve(result);
+                }, function (err) {
+                    q.reject(err);
+                }, options);
+
+                return q.promise;
+            },
+
+            /**
+             *
+             * @param options
+             * @returns {*}
+             */
+            getPicture: function (options) {
+                var q = $q.defer();
+
+                navigator.camera.getPicture(function (result) {
+                    // Do any magic you need
+                    q.resolve(result);
+                }, function (err) {
+                    q.reject(err);
+                }, options);
+
+                return q.promise;
+            },
+            /**
+             *
+             * @param img_path
+             * @returns {*}
+             */
+            resizeImage: function (img_path) {
+                var q = $q.defer();
+                window.imageResizer.resizeImage(function (success_resp) {
+                    console.log('success, img re-size: ' + JSON.stringify(success_resp));
+                    q.resolve(success_resp);
+                }, function (fail_resp) {
+                    console.log('fail, img re-size: ' + JSON.stringify(fail_resp));
+                    q.reject(fail_resp);
+                }, img_path, 200, 0, {
+                    imageDataType: ImageResizer.IMAGE_DATA_TYPE_URL,
+                    resizeType: ImageResizer.RESIZE_TYPE_MIN_PIXEL,
+                    pixelDensity: true,
+                    storeImage: false,
+                    photoAlbum: false,
+                    format: 'jpg'
+                });
+
+                return q.promise;
+            },
+
+            toBase64Image: function (img_path) {
+                var q = $q.defer();
+                window.imageResizer.resizeImage(function (success_resp) {
+                    console.log('success, img toBase64Image: ' + JSON.stringify(success_resp));
+                    q.resolve(success_resp);
+                }, function (fail_resp) {
+                    console.log('fail, img toBase64Image: ' + JSON.stringify(fail_resp));
+                    q.reject(fail_resp);
+                }, img_path, 1, 1, {
+                    imageDataType: ImageResizer.IMAGE_DATA_TYPE_URL,
+                    resizeType: ImageResizer.RESIZE_TYPE_FACTOR,
+                    format: 'jpg'
+                });
+
+                return q.promise;
+            }
+        }
+    }])
+
+.service('ParseService', function($http, $q){
 	var baseURL = "https://api.parse.com/1/classes";
 
 	var authHeaders = PARSE__HEADER_CREDENTIALS;
@@ -15,36 +90,93 @@ angular.module('app.services', [])
             headers: authHeaders,
         };
 
+    Parse.initialize("XLOJVH1XwXmOIxEutuW6vJjp3o456psnLMdbJ4c7", "kVF3ZQQsFb4jP5wGxpoOeP5wi2CwccdsWiidHBIb");
+
+   // var currentUser = FacebookAuth.currentUser;
+
     return {
 
+        
+
+        
+
+
+         // savePhotoToParse: function (_params) {
+         //            var ImageObject = Parse.Object.extend("pictures");
+
+         //            // create the parse file object using base64 representation of photo
+         //            var imageFile = new Parse.File("mypic.jpg", {base64: _params.photo});
+
+
+         //            // save the parse file object
+         //            return imageFile.save().then(function () {
+
+         //                _params.photo = null;
+
+         //                // create object to hold caption and file reference
+         //                var imageObject = new ImageObject();
+
+         //                // set object properties
+         //                imageObject.set("caption", _params.caption);
+         //                imageObject.set("picture", imageFile);
+
+         //                // save object to parse backend
+         //                return imageObject.save();
+
+         //            }, function (error) {
+         //                alert("Error " + JSON.stringify(error, null, 2));
+         //                console.log(error);
+         //            });
+
+         //        },
+
+
+
+
+
+
+
         savePhotoToParse: function (_params) {
-                    var ImageObject = Parse.Object.extend("ImageInfo");
-
-                    // create the parse file object using base64 representation of photo
-                    var imageFile = new Parse.File("mypic.jpg", {base64: _params.photo});
-
-
-                    // save the parse file object
-                    return imageFile.save().then(function () {
-
-                        _params.photo = null;
-
-                        // create object to hold caption and file reference
-                        var imageObject = new ImageObject();
-
-                        // set object properties
-                        imageObject.set("caption", _params.caption);
-                        imageObject.set("picture", imageFile);
-
-                        // save object to parse backend
-                        return imageObject.save();
-
-                    }, function (error) {
-                        alert("Error " + JSON.stringify(error, null, 2));
-                        console.log(error);
+                return $http.post(baseURL + '/pictures', _params, defaultSettings)
+                    .then(function (success){
+                        console.log("photo saved to parse", success);
+                        return success.data;
+                    }, function(error){
+                        console.log("error while saving pic to parse", error);
                     });
-
                 },
+
+
+
+
+
+                //     var ImageObject = Parse.Object.extend("pictures");
+
+                //     // create the parse file object using base64 representation of photo
+                //     var imageFile = new Parse.File("mypic.jpg", {base64: _params.photo});
+
+
+                //     // save the parse file object
+                //     return imageFile.save().then(function () {
+
+                //         _params.photo = null;
+
+                //         // create object to hold caption and file reference
+                //         var imageObject = new ImageObject();
+
+                //         // set object properties
+                //         imageObject.set("caption", _params.caption);
+                //         imageObject.set("picture", imageFile);
+
+                //         // save object to parse backend
+                //         return imageObject.save();
+
+                //     }, function (error) {
+                //         alert("Error " + JSON.stringify(error, null, 2));
+                //         console.log(error);
+                //     });
+
+                // },
 
     	addEvent: function(eventDetails) {
             return $http.post(baseURL + '/Events', eventDetails, defaultSettings)
@@ -113,6 +245,10 @@ angular.module('app.services', [])
     var currentUser = {
         "id": null
     };
+
+   
+
+    
 
     var login = function() {
         return $cordovaFacebook.login(["public_profile", "email"])
@@ -188,6 +324,7 @@ angular.module('app.services', [])
         };
 
     return {
+
         login: login,
         currentUser: currentUser
     }

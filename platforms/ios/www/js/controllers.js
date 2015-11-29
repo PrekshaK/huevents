@@ -1,6 +1,6 @@
 angular.module('app.controllers', [])
   
-.controller('hUEventsCtrl', function($scope, $state, FacebookAuth) {
+.controller('hUEventsCtrl', function($scope, $state, ParseService, FacebookAuth) {
     $scope.login = function () {
       FacebookAuth.login().then(function(success) {
 	    	console.log(success);
@@ -9,6 +9,20 @@ angular.module('app.controllers', [])
 	      console.log("login error\n", error);
 	    });
 	}
+
+  // $scope.goTo = function(){
+
+  //   return ParseService.getCurrentUser().then(function (_user) {
+  //               console.log("We are here", _user);
+  //              // if resolved successfully return a user object that will set
+  //             // the variable `resolvedUser`
+  //                 return _user;
+  //                 }, function (_error) {
+  //                  $state.go('hUEvents');
+  //                  console.log("returned back");
+  //                 })
+  //   // $state.go('check');
+  // }
 })
    
 .controller('allEventsCtrl', function($scope, ParseService) {
@@ -19,9 +33,15 @@ angular.module('app.controllers', [])
 	})
 })
    
-.controller('addEventCtrl', function($scope, $state, Camera, $ionicPopup, ParseService) {
-     
+
+
+
+.controller('addEventCtrl', function($scope, $state, $cordovaFacebook, Camera, $ionicPopup, ParseService) {
+
+
+ 
      $scope.makeThumbNail = function () {
+      console.log("making thumbnail")
 
                 if (!$scope.lastPhoto) {
                     alert("Missing Photo");
@@ -40,6 +60,7 @@ angular.module('app.controllers', [])
              * save image to parse
              */
             $scope.savePhotoToParse = function () {
+              console.log("savingpic to parse");
 
                 if (!$scope.lastPhoto) {
                     alert("Missing Photo");
@@ -51,14 +72,15 @@ angular.module('app.controllers', [])
                     var base64 = _result.imageData;
 
                     // make sure we are logged in
-                    ParseService.loginDefaultUser("admin", "password").then(function (_user) {
-                        // user is logged in, now save to parse
-                        return ParseService.savePhotoToParse({
+                    // ParseService.loginDefaultUser("admin", "password").then(function (_user) {
+                    //     // user is logged in, now save to parse
+                    //     return 
+                        ParseService.savePhotoToParse({
                             photo: base64,
-                            caption: "By User " + _user.get("username")
-                        });
+                            caption: "By User "
+                        })
 
-                    }).then(function (_savePhotoResult) {
+                    .then(function (_savePhotoResult) {
                         console.log("savePhotoToParse ", _savePhotoResult);
 
                     }, function (_error) {
@@ -128,79 +150,85 @@ angular.module('app.controllers', [])
 
             };
 
-        
 
 
 
 
-	var name = $scope.eventName;
-	var description= $scope.eventDescription;
-	var venue = $scope.eventVenue;
-	var date = $scope.eventDate; 
-	var time = $scope.eventTime;
-	var image = $scope.eventImage;
-	var category = $scope.eventCategory;
-	$scope.postEvent = function(name, description, venue, date, time, image, category)
-	{
-		$scope.makeThumbNail();
-		if (name && description && venue && date && time && category)
-		{	
 
-			var event = {
-				name: name,
-				description: description,
-				venue: venue,
-				date: date,
-				time: time,
-				category: category,
-				image: null,
-				comments: [],
-				replies: [],
-				rsvps: [],
-			};
-			ParseService.addEvent(event).then(function (response) {
-                console.log('addStuff', response);
+
+
+
+
+
+
+
+
+
+  var name = $scope.eventName;
+  var description= $scope.eventDescription;
+  var venue = $scope.eventVenue;
+  var date = $scope.eventDate; 
+  var time = $scope.eventTime;
+  var image = $scope.eventImage;
+  var category = $scope.eventCategory;
+  var EventId = "";
+  $scope.postEvent = function(name, description, venue, date, time, image, category)
+  {
+    if (name && description && venue && date && time && category)
+    { 
+      var event = {
+        name: name,
+        description: description,
+        venue: venue,
+        date: date,
+        time: time,
+        category: category,
+        image: null,
+        comments: [],
+        replies: [],
+        rsvps: [],
+      };
+      ParseService.addEvent(event).then(function (response) {
+        console.log("added Event....", response);
+        var eventID = response.objectId;
                 var alertPopup = $ionicPopup.alert({
-     			title: 'Event Added!',
-     			template: 'Your Event should show up in the events feed.',
-   			});
-
-            ParseService.addimage(image).then(function(response){
-            	console.log("parse image", response);
-
+          title: 'Event Added!',
+          template: 'Your Event should show up in the events feed.',
+        });
+        alertPopup.then(function(res) {
+        $cordovaFacebook.getLoginStatus().then(function(success) {
+        var userID = success.authResponse.userID;
+        ParseService.getUser(userID).then(function(success) {
+            var newData = success.data.results[0];
+            newData.events.push(eventID);
+            ParseService.updateUser(newData).then(function(success){
+          console.log("eventAdded to userdata\n", success);
             });
+            }); 
+        });
+          });
+          });
+      $state.go('tabsController.allEvents');
+    }
+    else
+    {
+      var alertPopup = $ionicPopup.alert({
+          title: 'Empty Fields!',
+          template: 'Please make sure all fields are filled.'
+        });
+        alertPopup.then(function(res) {
+       });
+    } 
 
-		    alertPopup.then(function(res) {
-		     $state.go('tabsController.allEvents');
-		     console.log('Thank you for adding an event.');
-		   });
-            });
-
-		}
-		else
-		{
-			var alertPopup = $ionicPopup.alert({
-     			title: 'Empty Fields!',
-     			template: 'Please make sure all fields are filled.'
-   			});
-		    alertPopup.then(function(res) {
-		     console.log('Thank you for filling all fields!');
-		   });
-		}	
-
-	}
-
-
-
-
-
-
-
-
-
-
+  }
 
 })
+   
+
+
+
+
+
 
 
 
