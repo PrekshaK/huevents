@@ -147,37 +147,6 @@ angular.module('app.services', [])
                 },
 
 
-
-
-
-                //     var ImageObject = Parse.Object.extend("pictures");
-
-                //     // create the parse file object using base64 representation of photo
-                //     var imageFile = new Parse.File("mypic.jpg", {base64: _params.photo});
-
-
-                //     // save the parse file object
-                //     return imageFile.save().then(function () {
-
-                //         _params.photo = null;
-
-                //         // create object to hold caption and file reference
-                //         var imageObject = new ImageObject();
-
-                //         // set object properties
-                //         imageObject.set("caption", _params.caption);
-                //         imageObject.set("picture", imageFile);
-
-                //         // save object to parse backend
-                //         return imageObject.save();
-
-                //     }, function (error) {
-                //         alert("Error " + JSON.stringify(error, null, 2));
-                //         console.log(error);
-                //     });
-
-                // },
-
     	addEvent: function(eventDetails) {
             return $http.post(baseURL + '/Events', eventDetails, defaultSettings)
                     .then(function (success) {

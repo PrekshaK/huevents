@@ -45,19 +45,22 @@
   		<span class="input-label">Fliers/Posters</span>
   		<input type="file" ng-model='eventImage'>
 	</label>
-	{{eventName}}
+
+
+  <label class="item item-input">
+      <button ng-click="getPhoto()"  style=" width:50px" class="button button-block button-primary">Flyer</button>
+      
+  </label>
+  <ion-item>
+        <img ng-src="{{lastPhoto}}" aligh = "right" style="max-width: 10%">
+  </ion-item>
+<!-- 	{{eventName}}
 	{{eventDescription}}
 	{{eventVenue}}
 	{{eventDate}}
 	{{eventTime}}
-	{{eventCategory}}
+	{{eventCategory}} -->
 	<button class="button button-stable button-block  icon ion-compose" ng-click="postEvent(eventName, eventDescription, eventVenue, eventDate, eventTime, eventImage, eventCategory)">Post event</button>
 
-
-
-  <button ng-click="getPhoto()" class="button button-block button-primary">Take Photo</button>
-    <ion-item>
-        <button ng-click="makeThumbNail()" class="button button-primary">Make Thumbnail</button>
-        <button ng-click="savePhotoToParse()" class="button button-primary">Save Photo To Parse</button>
     </ion-content>
 </ion-view>

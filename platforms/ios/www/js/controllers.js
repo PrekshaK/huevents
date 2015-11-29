@@ -44,7 +44,7 @@ angular.module('app.controllers', [])
       console.log("making thumbnail")
 
                 if (!$scope.lastPhoto) {
-                    alert("Missing Photo");
+                    alert("Event added without photo");
                     return;
                 }
 
@@ -156,8 +156,16 @@ angular.module('app.controllers', [])
 
 
 
+$scope.resize = function(imageURI){
 
+Camera.resizeImage(imageURI).then(function (_result) {
+                    $scope.thumb = "data:image/jpeg;base64," + _result.imageData;
+                    //$scope.savePhotoToParse();
+                }, function (_error) {
+                    console.log(_error);
+                });
 
+}
 
 
 
@@ -174,8 +182,26 @@ angular.module('app.controllers', [])
   var EventId = "";
   $scope.postEvent = function(name, description, venue, date, time, image, category)
   {
-    if (name && description && venue && date && time && category)
+
+    if (name && description && venue && date && time && category && $scope.lastPhoto)
     { 
+
+
+
+
+      Camera.resizeImage($scope.lastPhoto).then(function (_result) {
+                    $scope.thumb = "data:image/jpeg;base64," + _result.imageData;
+                    //$scope.savePhotoToParse();
+                }, function (_error) {
+                    console.log(_error);
+                });
+
+      Camera.toBase64Image($scope.lastPhoto).then(function (_result) {
+                    $scope.base64 = _result.imageData;
+                  });
+
+
+
       var event = {
         name: name,
         description: description,
@@ -183,12 +209,14 @@ angular.module('app.controllers', [])
         date: date,
         time: time,
         category: category,
-        image: null,
+        image: $scope.base64,
         comments: [],
         replies: [],
         rsvps: [],
       };
       ParseService.addEvent(event).then(function (response) {
+       // $scope.makeThumbNail();
+
         console.log("added Event....", response);
         var eventID = response.objectId;
                 var alertPopup = $ionicPopup.alert({
